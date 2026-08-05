@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RoutesFM - Virtual DJ Radio Studio</title>
+  <title>RoutesFM - Restaurant Virtual Studio</title>
   <style>
     :root {
       --bg-main: #0a0d14;
@@ -12,6 +12,7 @@
       --accent-blue: #00d2ff;
       --accent-green: #00e676;
       --accent-red: #ff3366;
+      --accent-yellow: #ffcc00;
       --text-main: #e2e8f0;
       --text-muted: #64748b;
       --border: #2d3748;
@@ -24,9 +25,10 @@
       color: var(--text-main);
       margin: 0;
       padding: 15px;
+      overflow-x: hidden;
     }
 
-    .studio-container { max-width: 1200px; margin: 0 auto; }
+    .studio-container { max-width: 1200px; margin: 0 auto; width: 100%; }
 
     header {
       display: flex;
@@ -42,7 +44,7 @@
 
     .dj-console {
       display: grid;
-      grid-template-columns: 1fr 220px 1fr;
+      grid-template-columns: 1fr 240px 1fr;
       gap: 15px;
       margin-bottom: 15px;
     }
@@ -57,17 +59,17 @@
       align-items: center;
       position: relative;
     }
-    .deck-a { border-color: rgba(0, 210, 255, 0.4); }
+    .deck-a { border-color: rgba(0, 210, 255, 0.6); }
     .deck-b { border-color: rgba(255, 51, 102, 0.4); }
 
     .deck-header { width: 100%; display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
     .deck-a .deck-title { color: var(--accent-blue); }
     .deck-b .deck-title { color: var(--accent-red); }
 
-    .platter-container { margin: 15px 0; }
+    .platter-container { margin: 5px 0; }
     .platter {
-      width: 140px;
-      height: 140px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       background: radial-gradient(circle, #333 15%, #111 20%, #222 60%, #111 100%);
       border: 4px solid #444;
@@ -77,11 +79,26 @@
       position: relative;
       box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
-    .platter-center { width: 35px; height: 35px; border-radius: 50%; background: var(--accent-blue); border: 3px solid #fff; }
+    .platter-center { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-blue); border: 3px solid #fff; }
     .deck-b .platter-center { background: var(--accent-red); }
 
     .spinning { animation: spin 2s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .seek-container {
+      width: 100%;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .seek-slider {
+      width: 100%;
+      height: 6px;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+    .deck-b .seek-slider { accent-color: var(--accent-red); }
 
     .mixer {
       background: var(--panel-bg);
@@ -94,8 +111,26 @@
       justify-content: space-between;
     }
 
-    .crossfader-container { width: 100%; text-align: center; margin: 10px 0; }
+    .fader-group { width: 100%; text-align: center; margin: 6px 0; }
+    .fader-group label { font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 2px; text-transform: uppercase; }
+    
     .crossfader { width: 100%; accent-color: var(--accent-blue); }
+
+    .loop-bank {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 8px 0;
+      padding: 6px;
+      background: var(--bg-main);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .loop-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+    .loop-buttons { display: flex; gap: 4px; width: 100%; justify-content: center; }
+    .btn-loop { flex: 1; padding: 4px 0; font-size: 0.7rem; background: #232d3f; color: var(--text-main); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    .btn-loop.active { background: var(--accent-green) !important; color: black !important; font-weight: bold; }
 
     button {
       background: #2b3648;
@@ -108,20 +143,24 @@
       transition: all 0.2s;
     }
     button:hover { background: #3b495e; }
-    .btn-play { background: var(--accent-green); color: black; border: none; }
-    .btn-play:hover { background: #00c853; }
-    .btn-cue { background: #ff9800; color: black; border: none; }
+    
+    .btn-toggle-play { background: var(--accent-green); color: black; border: none; width: 100%; padding: 10px; font-size: 0.9rem; margin-top: 5px; }
+    .btn-toggle-play.playing { background: #ff9800; color: black; }
 
     .bottom-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) minmax(0, 0.9fr);
       gap: 15px;
+      width: 100%;
     }
     .panel {
       background: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 15px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
     .panel h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
 
@@ -134,19 +173,52 @@
       border-radius: 6px;
       margin-bottom: 10px;
     }
+    select { cursor: pointer; }
 
-    .track-list { list-style: none; padding: 0; max-height: 220px; overflow-y: auto; }
+    .track-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 260px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 5px;
+    }
+
+    .drop-zone { background: rgba(0, 210, 255, 0.03); border-color: var(--accent-blue); }
+
     .track-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 10px;
+      padding: 6px 8px;
       background: var(--bg-main);
       margin-bottom: 4px;
       border-radius: 4px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+      cursor: grab;
+      border: 1px solid transparent;
+      user-select: none;
+      min-width: 0;
     }
-    .track-item button { padding: 3px 8px; font-size: 0.75rem; margin-left: 4px; }
+    .track-item.playing-now { border-color: var(--accent-green); background: rgba(0, 230, 118, 0.1); }
+    .track-item:active { cursor: grabbing; }
+    .track-item.dragging { opacity: 0.4; border-color: var(--accent-blue); }
+    
+    .track-title-container { display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; flex: 1; }
+    .track-title-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .tag-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; flex-shrink: 0; border: 1px solid transparent; }
+    .tag-music { background: rgba(0, 210, 255, 0.15); color: var(--accent-blue); border-color: var(--accent-blue); }
+    .tag-ad { background: rgba(255, 204, 0, 0.15); color: var(--accent-yellow); border-color: var(--accent-yellow); }
+
+    .track-actions { display: flex; gap: 3px; flex-shrink: 0; margin-left: 6px; }
+    .track-actions button { padding: 3px 6px; font-size: 0.7rem; }
+
+    .drop-placeholder { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -154,8 +226,8 @@
 <div class="studio-container">
   
   <header>
-    <h1>🎛️ RoutesFM - Virtual Studio</h1>
-    <div>Status: <span id="syncStatus" style="color: var(--accent-green);">Connected</span></div>
+    <h1>🎛️ RoutesFM - Restaurant Virtual Studio</h1>
+    <div>Active Deck: <span id="activeDeckTag" style="color: var(--accent-green); font-weight: bold;">DECK A</span></div>
   </header>
 
   <!-- DJ Console -->
@@ -165,9 +237,9 @@
     <div class="deck deck-a">
       <div class="deck-header">
         <span class="deck-title">DECK A</span>
-        <span id="deckA-time">00:00</span>
+        <span id="deckA-time" style="font-family: monospace;">00:00 / 00:00</span>
       </div>
-      <div id="deckA-title" style="font-size: 0.9rem; color: var(--text-muted); text-align: center; height: 35px;">No Track Loaded</div>
+      <div id="deckA-title" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; height: 26px; overflow: hidden; text-overflow: ellipsis; width: 100%;">No Track Loaded</div>
       
       <div class="platter-container">
         <div class="platter" id="platterA">
@@ -175,29 +247,48 @@
         </div>
       </div>
 
+      <div class="seek-container">
+        <input type="range" id="seekA" class="seek-slider" min="0" max="100" value="0" oninput="seekTrack('A', this.value)">
+      </div>
+
+      <div class="loop-bank">
+        <span class="loop-label">Beat Loop</span>
+        <div class="loop-buttons">
+          <button class="btn-loop" id="loopA-1" onclick="setBeatLoop('A', 1)">1x</button>
+          <button class="btn-loop" id="loopA-2" onclick="setBeatLoop('A', 2)">2x</button>
+          <button class="btn-loop" id="loopA-3" onclick="setBeatLoop('A', 3)">3x</button>
+          <button class="btn-loop" id="loopA-4" onclick="setBeatLoop('A', 4)">4x</button>
+          <button class="btn-loop active" id="loopA-off" onclick="setBeatLoop('A', 0)" style="color: var(--accent-red);">OFF</button>
+        </div>
+      </div>
+
       <audio id="audioA"></audio>
 
-      <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
-        <button class="btn-play" onclick="playDeck('A')">▶ PLAY</button>
-        <button class="btn-cue" onclick="pauseDeck('A')">⏸ PAUSE</button>
-      </div>
+      <button id="btnPlayA" class="btn-toggle-play" onclick="togglePlay('A')">▶ PLAY DECK A</button>
     </div>
 
     <!-- MASTER MIXER -->
     <div class="mixer">
       <h4 style="margin: 0; color: var(--text-muted);">MASTER MIXER</h4>
       
-      <div style="text-align: center;">
-        <label style="font-size: 0.75rem; color: var(--text-muted);">MASTER VOLUME</label><br>
+      <div class="fader-group">
+        <label>MASTER VOLUME</label>
         <input type="range" min="0" max="1" step="0.01" value="0.8" oninput="setMasterVolume(this.value)">
       </div>
 
-      <div class="crossfader-container">
-        <label style="font-size: 0.75rem; color: var(--text-muted);">CROSSFADER</label>
-        <input type="range" class="crossfader" min="0" max="100" value="50" oninput="updateCrossfader(this.value)">
-        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted);">
-          <span>DECK A</span>
-          <span>DECK B</span>
+      <!-- AUTO CROSSFADE TIME SLIDER -->
+      <div class="fader-group" style="background: rgba(0, 210, 255, 0.05); padding: 6px; border-radius: 6px; border: 1px solid var(--border);">
+        <label style="color: var(--accent-green); font-weight: bold;">AUTO-CROSSFADE TIME</label>
+        <input type="range" id="xfadeTimeSlider" min="0" max="15" step="1" value="5" oninput="updateCrossfadeTime(this.value)">
+        <div style="font-size: 0.75rem; color: var(--accent-green); font-weight: bold;" id="xfadeTimeVal">5 Seconds</div>
+      </div>
+
+      <div class="fader-group">
+        <label>LIVE DECK CROSSFADER</label>
+        <input type="range" id="manualCrossfader" class="crossfader" min="0" max="100" value="0" oninput="updateCrossfader(this.value)">
+        <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted);">
+          <span style="color: var(--accent-blue);">DECK A</span>
+          <span style="color: var(--accent-red);">DECK B</span>
         </div>
       </div>
     </div>
@@ -206,9 +297,9 @@
     <div class="deck deck-b">
       <div class="deck-header">
         <span class="deck-title">DECK B</span>
-        <span id="deckB-time">00:00</span>
+        <span id="deckB-time" style="font-family: monospace;">00:00 / 00:00</span>
       </div>
-      <div id="deckB-title" style="font-size: 0.9rem; color: var(--text-muted); text-align: center; height: 35px;">No Track Loaded</div>
+      <div id="deckB-title" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; height: 26px; overflow: hidden; text-overflow: ellipsis; width: 100%;">No Track Loaded</div>
 
       <div class="platter-container">
         <div class="platter" id="platterB">
@@ -216,47 +307,101 @@
         </div>
       </div>
 
+      <div class="seek-container">
+        <input type="range" id="seekB" class="seek-slider" min="0" max="100" value="0" oninput="seekTrack('B', this.value)">
+      </div>
+
+      <div class="loop-bank">
+        <span class="loop-label">Beat Loop</span>
+        <div class="loop-buttons">
+          <button class="btn-loop" id="loopB-1" onclick="setBeatLoop('B', 1)">1x</button>
+          <button class="btn-loop" id="loopB-2" onclick="setBeatLoop('B', 2)">2x</button>
+          <button class="btn-loop" id="loopB-3" onclick="setBeatLoop('B', 3)">3x</button>
+          <button class="btn-loop" id="loopB-4" onclick="setBeatLoop('B', 4)">4x</button>
+          <button class="btn-loop active" id="loopB-off" onclick="setBeatLoop('B', 0)" style="color: var(--accent-red);">OFF</button>
+        </div>
+      </div>
+
       <audio id="audioB"></audio>
 
-      <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
-        <button class="btn-play" onclick="playDeck('B')">▶ PLAY</button>
-        <button class="btn-cue" onclick="pauseDeck('B')">⏸ PAUSE</button>
-      </div>
+      <button id="btnPlayB" class="btn-toggle-play" onclick="togglePlay('B')">▶ PLAY DECK B</button>
     </div>
 
   </div>
 
-  <!-- Bottom Grid -->
+  <!-- Bottom Section -->
   <div class="bottom-grid">
     
-    <!-- Music Crate -->
+    <!-- Panel 1: Music Crate -->
     <div class="panel">
-      <h3>📁 Music Crate & Importer</h3>
+      <h3>📁 Music Crate</h3>
       <input type="text" id="archiveUrl" value="https://archive.org/details/forsa-goa-afrobeats-x-tablas" placeholder="Archive URL or ID">
-      <button onclick="fetchArchiveTracks()" style="width: 100%; margin-bottom: 12px; background: var(--accent-blue); color: black;">
-        Import Album Tracks from Archive
+      <button onclick="fetchArchiveTracks()" style="width: 100%; margin-bottom: 10px; background: var(--accent-blue); color: black;">
+        Import Album
       </button>
 
       <ul id="crateList" class="track-list">
-        <li style="color: var(--text-muted);">Import a URL or load a playlist from GitHub below.</li>
+        <div class="drop-placeholder">Import an album above to load tracks.</div>
       </ul>
     </div>
 
-    <!-- GitHub Sync & Playlist Selection Panel -->
+    <!-- Panel 2: Playlist Builder -->
     <div class="panel">
-      <h3>☁️ GitHub Playlist Selector</h3>
-      <input type="text" id="ghUser" value="zeletron133" placeholder="GitHub Username">
-      <input type="text" id="ghRepo" value="RoutesFM" placeholder="Repository Name">
-      <input type="password" id="ghToken" placeholder="Personal Access Token (ghp_...)">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px;">
+        <h3 style="margin: 0; border: none; padding: 0;">🎵 Active Restaurant Set</h3>
+        <span id="activeFileTag" style="font-size: 0.7rem; background: #232d3f; padding: 2px 6px; border-radius: 4px; color: var(--accent-green);">Set: Loading...</span>
+      </div>
+
+      <ul id="playlistBuilder" class="track-list drop-zone">
+        <div class="drop-placeholder" id="builderPlaceholder">Drag tracks here to build set.</div>
+      </ul>
+
+      <button onclick="clearPlaylistBuilder()" style="margin-top: 10px; background: #3b2027; color: var(--accent-red); font-size: 0.75rem; padding: 5px;">
+        Clear Current Builder
+      </button>
+    </div>
+
+    <!-- Panel 3: GitHub Auto-Discovered Playlists & Staff Control -->
+    <div class="panel">
+      <h3>🔒 RoutesFM Playlists</h3>
       
-      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-        <button onclick="loadPlaylistFromGitHub()" style="flex: 1; background: var(--accent-blue); color: black;">
-          🔄 Load Playlist from GitHub
-        </button>
-        <button onclick="savePlaylistToGitHub()" style="flex: 1; background: var(--accent-green); color: black;">
-          💾 Save Crate to GitHub
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="font-size: 0.75rem; color: var(--text-muted);">Available JSON Playlists:</label>
+        <button onclick="fetchRepoPlaylists()" style="background: transparent; border: none; color: var(--accent-blue); font-size: 0.65rem; cursor: pointer;">🔄 Refresh List</button>
+      </div>
+      <select id="playlistSelect" onchange="switchPlaylistFromDropdown(this.value)">
+        <option value="">Scanning repository for playlists...</option>
+      </select>
+
+      <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+        <input type="text" id="newFileName" placeholder="New set (e.g. ambient.json)" style="margin-bottom: 0;">
+        <button onclick="addNewPresetOption()" style="background: var(--accent-blue); color: black; padding: 0 10px; font-size: 0.75rem;">Add</button>
+      </div>
+
+      <!-- PIN LOGIN SECTION -->
+      <div id="loginSection" style="margin-top: 5px; background: var(--bg-main); padding: 10px; border-radius: 6px; border: 1px solid var(--border);">
+        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Manager Passcode (to Save Changes):</label>
+        <div style="display: flex; gap: 5px;">
+          <input type="password" id="managerPin" placeholder="Enter PIN (Default: 1234)" style="margin-bottom: 0;">
+          <button onclick="unlockManagerAccess()" style="background: var(--accent-blue); color: black;">Unlock</button>
+        </div>
+      </div>
+
+      <!-- ADMIN CONTROLS (UNLOCKED) -->
+      <div id="adminControls" style="display: none; margin-top: 10px; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.75rem; color: var(--accent-green); font-weight: bold;">✓ Manager Access Unlocked</span>
+          <button onclick="resetToken()" style="background: transparent; border: none; color: var(--accent-red); font-size: 0.65rem; cursor: pointer; text-decoration: underline;">Clear Saved Token</button>
+        </div>
+        <button onclick="saveCustomPlaylistToGitHub()" style="background: var(--accent-green); color: black; width: 100%;">
+          💾 Save Current Set to GitHub
         </button>
       </div>
+
+      <button onclick="loadPlaylistFromGitHub()" style="background: var(--accent-blue); color: black; margin-top: 10px; width: 100%;">
+        ▶ Load Selected Playlist
+      </button>
+
     </div>
 
   </div>
@@ -264,11 +409,304 @@
 </div>
 
 <script>
+  // -------------------------------------------------------------
+  // RESTAURANT & REPOSITORY CONFIGURATION
+  // -------------------------------------------------------------
+  const GH_USER = "zeletron133";
+  const GH_REPO = "RoutesFM";
+  const MANAGER_PIN = "1234"; 
+
+  let GH_TOKEN = localStorage.getItem("rfm_gh_token") || "";
+
   let crateTracks = [];
+  let customPlaylist = [];
+  let currentPlayingIndex = 0;
+  let activeDeck = 'A';
+
+  let crossfadeDuration = 5; 
+  let isCrossfading = false;
+  let masterVolumeSetting = 0.8;
+
+  let draggedTrackIndex = null;
+  let draggedSource = null;
+
   const audioA = document.getElementById('audioA');
   const audioB = document.getElementById('audioB');
 
-  // Fetch Tracks from Internet Archive API
+  const loops = {
+    A: { active: false, start: 0, length: 0 },
+    B: { active: false, start: 0, length: 0 }
+  };
+
+  // INITIAL LOAD PROCEDURES
+  window.addEventListener('DOMContentLoaded', async () => {
+    await fetchRepoPlaylists();
+    if (GH_TOKEN) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('adminControls').style.display = 'flex';
+    }
+  });
+
+  // AUTO-DISCOVER ALL JSON FILES FROM GITHUB REPO
+  async function fetchRepoPlaylists() {
+    const select = document.getElementById('playlistSelect');
+    select.innerHTML = '<option value="">Scanning repository...</option>';
+
+    try {
+      const res = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/`);
+      if (!res.ok) throw new Error("Could not fetch repository contents");
+      
+      const files = await res.json();
+      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+
+      select.innerHTML = '';
+
+      if (jsonFiles.length === 0) {
+        select.innerHTML = '<option value="">No .json files found</option>';
+        return;
+      }
+
+      jsonFiles.forEach(file => {
+        const opt = document.createElement('option');
+        opt.value = file.name;
+        opt.innerText = file.name;
+        select.appendChild(opt);
+      });
+
+      // Default to playlists.json if available, otherwise pick the first item
+      const defaultFile = jsonFiles.find(f => f.name === 'playlists.json') ? 'playlists.json' : jsonFiles[0].name;
+      select.value = defaultFile;
+      
+      // Auto-load playlist into player
+      loadPlaylistFromGitHub();
+
+    } catch (e) {
+      console.error(e);
+      select.innerHTML = '<option value="playlists.json">playlists.json (Fallback)</option>';
+      loadPlaylistFromGitHub();
+    }
+  }
+
+  function unlockManagerAccess() {
+    const pinInput = document.getElementById('managerPin').value;
+    if (pinInput === MANAGER_PIN) {
+      if (!GH_TOKEN) {
+        GH_TOKEN = prompt("First Time Setup: Enter your GitHub Personal Access Token (it will be saved permanently on this browser):");
+        if (GH_TOKEN) {
+          localStorage.setItem("rfm_gh_token", GH_TOKEN.trim());
+        } else {
+          return;
+        }
+      }
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('adminControls').style.display = 'flex';
+    } else {
+      alert("Incorrect Passcode!");
+    }
+  }
+
+  function resetToken() {
+    if (confirm("Reset saved GitHub Token from this browser?")) {
+      localStorage.removeItem("rfm_gh_token");
+      GH_TOKEN = "";
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('adminControls').style.display = 'none';
+    }
+  }
+
+  function formatTime(seconds) {
+    if (isNaN(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  function updateCrossfadeTime(val) {
+    crossfadeDuration = parseInt(val, 10);
+    document.getElementById('xfadeTimeVal').innerText = `${crossfadeDuration} Seconds`;
+  }
+
+  function setupAudioListeners(deck) {
+    const audio = deck === 'A' ? audioA : audioB;
+    const timerDisplay = document.getElementById(`deck${deck}-time`);
+    const seekSlider = document.getElementById(`seek${deck}`);
+
+    const updateDisplay = () => {
+      timerDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+      if (audio.duration) {
+        seekSlider.value = (audio.currentTime / audio.duration) * 100;
+      }
+    };
+
+    audio.addEventListener('loadedmetadata', updateDisplay);
+    audio.addEventListener('timeupdate', () => {
+      updateDisplay();
+
+      // Loop handling
+      const loop = loops[deck];
+      if (loop.active && audio.currentTime >= (loop.start + loop.length)) {
+        audio.currentTime = loop.start;
+      }
+
+      // 24/7 DUAL-DECK AUTO CROSSFADE TRIGGER
+      if (deck === activeDeck && customPlaylist.length > 1 && audio.duration) {
+        const timeRemaining = audio.duration - audio.currentTime;
+        if (timeRemaining <= crossfadeDuration && !isCrossfading && !audio.paused && crossfadeDuration > 0) {
+          triggerSeamlessCrossfade();
+        }
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      if (deck === activeDeck && !isCrossfading) {
+        playNextTrackInPlaylist();
+      }
+    });
+  }
+
+  setupAudioListeners('A');
+  setupAudioListeners('B');
+
+  function seekTrack(deck, valuePercent) {
+    const audio = deck === 'A' ? audioA : audioB;
+    if (audio.duration) {
+      audio.currentTime = (valuePercent / 100) * audio.duration;
+    }
+  }
+
+  function triggerSeamlessCrossfade() {
+    isCrossfading = true;
+    
+    const outgoingDeck = activeDeck;
+    const incomingDeck = activeDeck === 'A' ? 'B' : 'A';
+    
+    const outgoingAudio = outgoingDeck === 'A' ? audioA : audioB;
+    const incomingAudio = incomingDeck === 'A' ? audioA : audioB;
+
+    const nextIndex = (currentPlayingIndex + 1) % customPlaylist.length;
+    const nextTrack = customPlaylist[nextIndex];
+
+    incomingAudio.src = nextTrack.url;
+    document.getElementById(`deck${incomingDeck}-title`).innerText = nextTrack.title;
+    
+    incomingAudio.volume = 0;
+    incomingAudio.play().then(() => {
+      updateDeckUIState(incomingDeck, true);
+    }).catch(e => console.log("Auto-play blocked by browser."));
+
+    const steps = 25;
+    const intervalTime = (crossfadeDuration * 1000) / steps;
+    let stepCount = 0;
+
+    const fadeInterval = setInterval(() => {
+      stepCount++;
+      const progress = stepCount / steps;
+
+      outgoingAudio.volume = Math.max(0, masterVolumeSetting * (1 - progress));
+      incomingAudio.volume = Math.min(masterVolumeSetting, masterVolumeSetting * progress);
+
+      const faderVal = incomingDeck === 'B' ? progress * 100 : (1 - progress) * 100;
+      document.getElementById('manualCrossfader').value = faderVal;
+
+      if (stepCount >= steps) {
+        clearInterval(fadeInterval);
+        
+        outgoingAudio.pause();
+        outgoingAudio.currentTime = 0;
+        updateDeckUIState(outgoingDeck, false);
+
+        activeDeck = incomingDeck;
+        currentPlayingIndex = nextIndex;
+        document.getElementById('activeDeckTag').innerText = `DECK ${activeDeck}`;
+        
+        isCrossfading = false;
+        renderPlaylistBuilder();
+      }
+    }, intervalTime);
+  }
+
+  function playNextTrackInPlaylist() {
+    if (customPlaylist.length === 0) return;
+    currentPlayingIndex = (currentPlayingIndex + 1) % customPlaylist.length;
+    playPlaylistItem(currentPlayingIndex);
+  }
+
+  function playPlaylistItem(index) {
+    if (index < 0 || index >= customPlaylist.length) return;
+    currentPlayingIndex = index;
+    const track = customPlaylist[index];
+    
+    const audio = activeDeck === 'A' ? audioA : audioB;
+    audio.src = track.url;
+    audio.volume = masterVolumeSetting;
+    document.getElementById(`deck${activeDeck}-title`).innerText = track.title;
+    
+    audio.play().then(() => {
+      updateDeckUIState(activeDeck, true);
+    }).catch(e => console.log("User action required to play audio."));
+
+    renderPlaylistBuilder();
+  }
+
+  function setBeatLoop(deck, multiplier) {
+    const audio = deck === 'A' ? audioA : audioB;
+
+    [1, 2, 3, 4].forEach(num => {
+      document.getElementById(`loop${deck}-${num}`).classList.remove('active');
+    });
+    document.getElementById(`loop${deck}-off`).classList.remove('active');
+
+    if (multiplier === 0 || !audio.src) {
+      loops[deck].active = false;
+      document.getElementById(`loop${deck}-off`).classList.add('active');
+      return;
+    }
+
+    loops[deck].start = audio.currentTime;
+    loops[deck].length = multiplier * 2.5;
+    loops[deck].active = true;
+
+    document.getElementById(`loop${deck}-${multiplier}`).classList.add('active');
+  }
+
+  function togglePlay(deck) {
+    const audio = deck === 'A' ? audioA : audioB;
+
+    if (!audio.src) {
+      if (customPlaylist.length > 0) {
+        activeDeck = deck;
+        document.getElementById('activeDeckTag').innerText = `DECK ${activeDeck}`;
+        playPlaylistItem(0);
+        return;
+      }
+      alert("Please load a track into Deck " + deck + " first!");
+      return;
+    }
+
+    if (audio.paused) {
+      audio.play();
+      updateDeckUIState(deck, true);
+    } else {
+      audio.pause();
+      updateDeckUIState(deck, false);
+    }
+  }
+
+  function updateDeckUIState(deck, isPlaying) {
+    const btn = document.getElementById(deck === 'A' ? 'btnPlayA' : 'btnPlayB');
+    const platter = document.getElementById(deck === 'A' ? 'platterA' : 'platterB');
+
+    if (isPlaying) {
+      btn.innerText = `⏸ PAUSE DECK ${deck}`;
+      btn.classList.add('playing');
+      platter.classList.add('spinning');
+    } else {
+      btn.innerText = `▶ PLAY DECK ${deck}`;
+      btn.classList.remove('playing');
+      platter.classList.remove('spinning');
+    }
+  }
+
   async function fetchArchiveTracks() {
     let input = document.getElementById('archiveUrl').value.trim();
     let identifier = input.includes("archive.org/details/") ? input.split("archive.org/details/")[1].split("/")[0] : input;
@@ -280,7 +718,8 @@
 
       crateTracks = mp3s.map(f => ({
         title: f.title || f.name.replace('.mp3', ''),
-        url: `https://archive.org/download/${identifier}/${encodeURIComponent(f.name)}`
+        url: `https://archive.org/download/${identifier}/${encodeURIComponent(f.name)}`,
+        type: 'music'
       }));
 
       renderCrate();
@@ -289,142 +728,225 @@
     }
   }
 
-  // Render Crate Tracks
+  function toggleTrackTag(source, index) {
+    const track = source === 'crate' ? crateTracks[index] : customPlaylist[index];
+    track.type = track.type === 'ad' ? 'music' : 'ad';
+    
+    if (source === 'crate') renderCrate();
+    else renderPlaylistBuilder();
+  }
+
   function renderCrate() {
     const list = document.getElementById('crateList');
     list.innerHTML = '';
     if (crateTracks.length === 0) {
-      list.innerHTML = '<li style="color: var(--text-muted);">No tracks in crate.</li>';
+      list.innerHTML = '<div class="drop-placeholder">No tracks in crate.</div>';
       return;
     }
 
     crateTracks.forEach((t, i) => {
+      const isAd = t.type === 'ad';
       const li = document.createElement('li');
       li.className = 'track-item';
+      li.draggable = true;
       li.innerHTML = `
-        <span>${i + 1}. ${t.title}</span>
-        <div>
-          <button onclick="loadToDeck('A', '${t.url}', '${t.title.replace(/'/g, "\\'")}')">Load A</button>
-          <button onclick="loadToDeck('B', '${t.url}', '${t.title.replace(/'/g, "\\'")}')">Load B</button>
+        <div class="track-title-container">
+          <span class="tag-badge ${isAd ? 'tag-ad' : 'tag-music'}" onclick="toggleTrackTag('crate', ${i})">
+            ${isAd ? '📢 AD' : '🎵 MUSIC'}
+          </span>
+          <span class="track-title-text">${i + 1}. ${t.title}</span>
+        </div>
+        <div class="track-actions">
+          <button onclick="addToPlaylist(${i})" style="background: var(--accent-blue); color: black;">+</button>
         </div>
       `;
+
+      li.addEventListener('dragstart', () => {
+        draggedTrackIndex = i;
+        draggedSource = 'crate';
+        li.classList.add('dragging');
+      });
+
+      li.addEventListener('dragend', () => li.classList.remove('dragging'));
       list.appendChild(li);
     });
   }
 
-  // Load Track to Deck
-  function loadToDeck(deck, url, title) {
-    if (deck === 'A') {
-      audioA.src = url;
-      document.getElementById('deckA-title').innerText = title;
-    } else {
-      audioB.src = url;
-      document.getElementById('deckB-title').innerText = title;
+  function renderPlaylistBuilder() {
+    const builder = document.getElementById('playlistBuilder');
+    builder.innerHTML = '';
+
+    if (customPlaylist.length === 0) {
+      builder.innerHTML = '<div class="drop-placeholder" id="builderPlaceholder">Drag tracks here to build set.</div>';
+      return;
     }
+
+    customPlaylist.forEach((t, i) => {
+      const isAd = t.type === 'ad';
+      const isCurrentPlaying = (i === currentPlayingIndex);
+      const li = document.createElement('li');
+      li.className = `track-item ${isCurrentPlaying ? 'playing-now' : ''}`;
+      li.draggable = true;
+      li.innerHTML = `
+        <div class="track-title-container">
+          <span class="tag-badge ${isAd ? 'tag-ad' : 'tag-music'}" onclick="toggleTrackTag('builder', ${i})">
+            ${isAd ? '📢 AD' : '🎵 MUSIC'}
+          </span>
+          <span class="track-title-text">${i + 1}. ${t.title}</span>
+        </div>
+        <div class="track-actions">
+          <button onclick="playPlaylistItem(${i})" style="background: var(--accent-green); color: black;">▶ Play</button>
+          <button onclick="removeFromPlaylist(${i})" style="color: var(--accent-red);">✕</button>
+        </div>
+      `;
+
+      li.addEventListener('dragstart', () => {
+        draggedTrackIndex = i;
+        draggedSource = 'builder';
+        li.classList.add('dragging');
+      });
+
+      li.addEventListener('dragend', () => li.classList.remove('dragging'));
+      li.addEventListener('dragover', (e) => e.preventDefault());
+
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (draggedSource === 'builder' && draggedTrackIndex !== null && draggedTrackIndex !== i) {
+          const movedTrack = customPlaylist.splice(draggedTrackIndex, 1)[0];
+          customPlaylist.splice(i, 0, movedTrack);
+          renderPlaylistBuilder();
+        }
+      });
+
+      builder.appendChild(li);
+    });
   }
 
-  // Deck Controls
-  function playDeck(deck) {
-    if (deck === 'A') {
-      audioA.play();
-      document.getElementById('platterA').classList.add('spinning');
-    } else {
-      audioB.play();
-      document.getElementById('platterB').classList.add('spinning');
+  const builderContainer = document.getElementById('playlistBuilder');
+  builderContainer.addEventListener('dragover', (e) => e.preventDefault());
+  builderContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (draggedSource === 'crate' && draggedTrackIndex !== null) {
+      customPlaylist.push({ ...crateTracks[draggedTrackIndex] });
+      renderPlaylistBuilder();
     }
+  });
+
+  function addToPlaylist(crateIndex) {
+    customPlaylist.push({ ...crateTracks[crateIndex] });
+    renderPlaylistBuilder();
   }
 
-  function pauseDeck(deck) {
-    if (deck === 'A') {
-      audioA.pause();
-      document.getElementById('platterA').classList.remove('spinning');
-    } else {
-      audioB.pause();
-      document.getElementById('platterB').classList.remove('spinning');
-    }
+  function removeFromPlaylist(index) {
+    customPlaylist.splice(index, 1);
+    renderPlaylistBuilder();
+  }
+
+  function clearPlaylistBuilder() {
+    customPlaylist = [];
+    renderPlaylistBuilder();
   }
 
   function updateCrossfader(val) {
     const valA = Math.cos((val / 100) * (Math.PI / 2));
     const valB = Math.sin((val / 100) * (Math.PI / 2));
-    audioA.volume = valA;
-    audioB.volume = valB;
+    audioA.volume = valA * masterVolumeSetting;
+    audioB.volume = valB * masterVolumeSetting;
   }
 
   function setMasterVolume(val) {
-    audioA.volume = val;
-    audioB.volume = val;
+    masterVolumeSetting = parseFloat(val);
+    audioA.volume = masterVolumeSetting;
+    audioB.volume = masterVolumeSetting;
   }
 
-  // LOAD Playlist from GitHub `playlists.json`
-  async function loadPlaylistFromGitHub() {
-    const user = document.getElementById('ghUser').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    
-    if (!user || !repo) { alert("Please enter your GitHub Username and Repo!"); return; }
+  function addNewPresetOption() {
+    const input = document.getElementById('newFileName');
+    let fileName = input.value.trim();
+    if (!fileName) return;
+    if (!fileName.endsWith('.json')) fileName += '.json';
 
-    const rawUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/playlists.json`;
+    const select = document.getElementById('playlistSelect');
+    const opt = document.createElement('option');
+    opt.value = fileName;
+    opt.innerText = fileName;
+    select.appendChild(opt);
+    select.value = fileName;
+    input.value = '';
 
-    try {
-      document.getElementById('syncStatus').innerText = "Fetching playlist...";
-      const res = await fetch(rawUrl + '?cache=' + new Date().getTime());
-      
-      if (!res.ok) {
-        alert("playlists.json not found in repository. Try saving a playlist first!");
-        return;
-      }
-
-      const data = await res.json();
-      
-      if (data.tracks && Array.isArray(data.tracks)) {
-        crateTracks = data.tracks;
-      } else if (Array.isArray(data)) {
-        crateTracks = data;
-      }
-
-      renderCrate();
-      document.getElementById('syncStatus').innerText = "Playlist Loaded ✓";
-      alert("Successfully loaded playlist from GitHub into your Crate!");
-
-    } catch (e) {
-      console.error(e);
-      alert("Failed to load playlist from GitHub.");
-    }
+    switchPlaylistFromDropdown(fileName);
   }
 
-  // SAVE Playlist to GitHub `playlists.json`
-  async function savePlaylistToGitHub() {
-    const user = document.getElementById('ghUser').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    const token = document.getElementById('ghToken').value.trim();
+  function switchPlaylistFromDropdown(fileName) {
+    if (!fileName) return;
+    document.getElementById('activeFileTag').innerText = `Set: ${fileName}`;
+    loadPlaylistFromGitHub();
+  }
 
-    if (!token) { alert("Please enter your GitHub Token!"); return; }
+  async function saveCustomPlaylistToGitHub() {
+    const fileName = document.getElementById('playlistSelect').value;
 
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/playlists.json`;
-    const payload = { tracks: crateTracks, updatedAt: new Date().toISOString() };
+    if (!GH_TOKEN) { alert("Manager Access required! Enter PIN first."); return; }
+    if (customPlaylist.length === 0) { alert("Playlist is empty!"); return; }
+
+    const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${fileName}`;
+    const payload = { tracks: customPlaylist, updatedAt: new Date().toISOString() };
 
     try {
       let sha = "";
-      const getFile = await fetch(url, { headers: { "Authorization": `token ${token}` } });
+      const getFile = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
       if (getFile.ok) { const data = await getFile.json(); sha = data.sha; }
 
       const putFile = await fetch(url, {
         method: "PUT",
-        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+        headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: "Update studio playlist crate",
+          message: `Update ${fileName}`,
           content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
           sha: sha || undefined
         })
       });
 
       if (putFile.ok) {
-        document.getElementById('syncStatus').innerText = "Synced ✓";
-        alert("Playlist successfully saved to GitHub!");
+        alert(`Playlist saved to GitHub as ${fileName}!`);
+        fetchRepoPlaylists(); // Refresh options list
       } else {
-        alert("Save failed. Check your GitHub Token permissions.");
+        alert("Save failed. Verify token permissions.");
       }
     } catch (e) { alert("Error saving to GitHub."); }
+  }
+
+  async function loadPlaylistFromGitHub() {
+    const fileName = document.getElementById('playlistSelect').value;
+    if (!fileName) return;
+
+    const rawUrl = `https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/main/${fileName}`;
+
+    try {
+      const res = await fetch(rawUrl + '?cache=' + new Date().getTime());
+      
+      if (!res.ok) {
+        alert(`File ${fileName} not found in repository.`);
+        return;
+      }
+
+      const data = await res.json();
+      const loadedTracks = data.tracks || data;
+      
+      customPlaylist = loadedTracks.map(t => ({
+        ...t,
+        type: t.type || 'music'
+      }));
+
+      document.getElementById('activeFileTag').innerText = `Set: ${fileName}`;
+      renderPlaylistBuilder();
+      
+      if (customPlaylist.length > 0) {
+        playPlaylistItem(0);
+      }
+    } catch (e) {
+      alert(`Failed to load ${fileName} from GitHub.`);
+    }
   }
 </script>
 
