@@ -40,7 +40,6 @@
     }
     header h1 { margin: 0; color: var(--accent-blue); font-size: 1.5rem; letter-spacing: 1px; }
 
-    /* Decks & Mixer Grid */
     .dj-console {
       display: grid;
       grid-template-columns: 1fr 220px 1fr;
@@ -65,7 +64,6 @@
     .deck-a .deck-title { color: var(--accent-blue); }
     .deck-b .deck-title { color: var(--accent-red); }
 
-    /* Vinyl Platter */
     .platter-container { margin: 15px 0; }
     .platter {
       width: 140px;
@@ -85,7 +83,6 @@
     .spinning { animation: spin 2s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* Central Mixer */
     .mixer {
       background: var(--panel-bg);
       border: 1px solid var(--border);
@@ -100,7 +97,6 @@
     .crossfader-container { width: 100%; text-align: center; margin: 10px 0; }
     .crossfader { width: 100%; accent-color: var(--accent-blue); }
 
-    /* Controls & Buttons */
     button {
       background: #2b3648;
       color: white;
@@ -116,7 +112,6 @@
     .btn-play:hover { background: #00c853; }
     .btn-cue { background: #ff9800; color: black; border: none; }
 
-    /* Bottom Panels */
     .bottom-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -130,7 +125,7 @@
     }
     .panel h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], select {
       width: 100%;
       padding: 8px 12px;
       background: var(--bg-main);
@@ -140,17 +135,18 @@
       margin-bottom: 10px;
     }
 
-    .track-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+    .track-list { list-style: none; padding: 0; max-height: 220px; overflow-y: auto; }
     .track-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 6px 10px;
       background: var(--bg-main);
       margin-bottom: 4px;
       border-radius: 4px;
       font-size: 0.85rem;
     }
-    .track-item button { padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
+    .track-item button { padding: 3px 8px; font-size: 0.75rem; margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -159,10 +155,10 @@
   
   <header>
     <h1>🎛️ RoutesFM - Virtual Studio</h1>
-    <div>Status: <span id="syncStatus" style="color: var(--accent-green);">Connected & Ready</span></div>
+    <div>Status: <span id="syncStatus" style="color: var(--accent-green);">Connected</span></div>
   </header>
 
-  <!-- Dual Deck & Mixer Section -->
+  <!-- DJ Console -->
   <div class="dj-console">
     
     <!-- DECK A -->
@@ -187,7 +183,7 @@
       </div>
     </div>
 
-    <!-- MIXER -->
+    <!-- MASTER MIXER -->
     <div class="mixer">
       <h4 style="margin: 0; color: var(--text-muted);">MASTER MIXER</h4>
       
@@ -230,31 +226,37 @@
 
   </div>
 
-  <!-- Lower Management Grid -->
+  <!-- Bottom Grid -->
   <div class="bottom-grid">
     
-    <!-- Internet Archive Importer & Crate -->
+    <!-- Music Crate -->
     <div class="panel">
-      <h3>📁 Music Crate (Internet Archive)</h3>
+      <h3>📁 Music Crate & Importer</h3>
       <input type="text" id="archiveUrl" value="https://archive.org/details/forsa-goa-afrobeats-x-tablas" placeholder="Archive URL or ID">
       <button onclick="fetchArchiveTracks()" style="width: 100%; margin-bottom: 12px; background: var(--accent-blue); color: black;">
-        Import Album Tracks
+        Import Album Tracks from Archive
       </button>
 
       <ul id="crateList" class="track-list">
-        <li style="color: var(--text-muted);">Import a URL above to load songs into your crate.</li>
+        <li style="color: var(--text-muted);">Import a URL or load a playlist from GitHub below.</li>
       </ul>
     </div>
 
-    <!-- GitHub Sync Panel -->
+    <!-- GitHub Sync & Playlist Selection Panel -->
     <div class="panel">
-      <h3>☁️ GitHub Cloud Playlist Sync</h3>
+      <h3>☁️ GitHub Playlist Selector</h3>
       <input type="text" id="ghUser" value="zeletron133" placeholder="GitHub Username">
       <input type="text" id="ghRepo" value="RoutesFM" placeholder="Repository Name">
       <input type="password" id="ghToken" placeholder="Personal Access Token (ghp_...)">
-      <button onclick="savePlaylistToGitHub()" style="width: 100%; background: var(--accent-green); color: black;">
-        💾 Sync & Commit to GitHub
-      </button>
+      
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <button onclick="loadPlaylistFromGitHub()" style="flex: 1; background: var(--accent-blue); color: black;">
+          🔄 Load Playlist from GitHub
+        </button>
+        <button onclick="savePlaylistToGitHub()" style="flex: 1; background: var(--accent-green); color: black;">
+          💾 Save Crate to GitHub
+        </button>
+      </div>
     </div>
 
   </div>
@@ -266,7 +268,7 @@
   const audioA = document.getElementById('audioA');
   const audioB = document.getElementById('audioB');
 
-  // 1. Fetch Tracks from Internet Archive API
+  // Fetch Tracks from Internet Archive API
   async function fetchArchiveTracks() {
     let input = document.getElementById('archiveUrl').value.trim();
     let identifier = input.includes("archive.org/details/") ? input.split("archive.org/details/")[1].split("/")[0] : input;
@@ -287,10 +289,15 @@
     }
   }
 
-  // 2. Render Crate Tracks
+  // Render Crate Tracks
   function renderCrate() {
     const list = document.getElementById('crateList');
     list.innerHTML = '';
+    if (crateTracks.length === 0) {
+      list.innerHTML = '<li style="color: var(--text-muted);">No tracks in crate.</li>';
+      return;
+    }
+
     crateTracks.forEach((t, i) => {
       const li = document.createElement('li');
       li.className = 'track-item';
@@ -305,7 +312,7 @@
     });
   }
 
-  // 3. Load Track to Specific Deck
+  // Load Track to Deck
   function loadToDeck(deck, url, title) {
     if (deck === 'A') {
       audioA.src = url;
@@ -316,7 +323,7 @@
     }
   }
 
-  // 4. Deck Controls & Animation
+  // Deck Controls
   function playDeck(deck) {
     if (deck === 'A') {
       audioA.play();
@@ -337,7 +344,6 @@
     }
   }
 
-  // 5. Crossfader Logic
   function updateCrossfader(val) {
     const valA = Math.cos((val / 100) * (Math.PI / 2));
     const valB = Math.sin((val / 100) * (Math.PI / 2));
@@ -350,7 +356,43 @@
     audioB.volume = val;
   }
 
-  // 6. Save Crate to GitHub repository
+  // LOAD Playlist from GitHub `playlists.json`
+  async function loadPlaylistFromGitHub() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    
+    if (!user || !repo) { alert("Please enter your GitHub Username and Repo!"); return; }
+
+    const rawUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/playlists.json`;
+
+    try {
+      document.getElementById('syncStatus').innerText = "Fetching playlist...";
+      const res = await fetch(rawUrl + '?cache=' + new Date().getTime());
+      
+      if (!res.ok) {
+        alert("playlists.json not found in repository. Try saving a playlist first!");
+        return;
+      }
+
+      const data = await res.json();
+      
+      if (data.tracks && Array.isArray(data.tracks)) {
+        crateTracks = data.tracks;
+      } else if (Array.isArray(data)) {
+        crateTracks = data;
+      }
+
+      renderCrate();
+      document.getElementById('syncStatus').innerText = "Playlist Loaded ✓";
+      alert("Successfully loaded playlist from GitHub into your Crate!");
+
+    } catch (e) {
+      console.error(e);
+      alert("Failed to load playlist from GitHub.");
+    }
+  }
+
+  // SAVE Playlist to GitHub `playlists.json`
   async function savePlaylistToGitHub() {
     const user = document.getElementById('ghUser').value.trim();
     const repo = document.getElementById('ghRepo').value.trim();
@@ -359,7 +401,7 @@
     if (!token) { alert("Please enter your GitHub Token!"); return; }
 
     const url = `https://api.github.com/repos/${user}/${repo}/contents/playlists.json`;
-    const payload = { tracks: crateTracks, updatedAt: new Date() };
+    const payload = { tracks: crateTracks, updatedAt: new Date().toISOString() };
 
     try {
       let sha = "";
@@ -376,8 +418,12 @@
         })
       });
 
-      if (putFile.ok) alert("Playlist synced to GitHub!");
-      else alert("Save failed.");
+      if (putFile.ok) {
+        document.getElementById('syncStatus').innerText = "Synced ✓";
+        alert("Playlist successfully saved to GitHub!");
+      } else {
+        alert("Save failed. Check your GitHub Token permissions.");
+      }
     } catch (e) { alert("Error saving to GitHub."); }
   }
 </script>
