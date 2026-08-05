@@ -1,19 +1,6 @@
 {
   "Default Rotation": [],
-  "MorningRadioshow": [
-    {
-      "name": "Running (Dancehall Remix) V2.mp3",
-      "type": "MUSIC"
-    },
-    {
-      "name": "ElevenLabs_2026-08-05T10_38_56_Rachel - Fun, Casual, Australian Woman, English speaker_pvc_sp105_s50_sb75_v3 (1).mp3",
-      "type": "AD"
-    },
-    {
-      "name": "Scorpions  Still Loving You  HQ_320kbps.mp3",
-      "type": "MUSIC"
-    }
-  ],
+  "MorningRadioshow": [],
   "Afternoon Show": [
     {
       "name": "The Supermen Lovers_Starlight_unclosd_anduj_lthx_edit.wav",
