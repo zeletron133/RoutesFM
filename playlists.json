@@ -1,4 +1,9 @@
 {
   "Default Rotation": [],
-  "MorningRadioshow": []
+  "MorningRadioshow": [
+    {
+      "name": "Running (Dancehall Remix) V2.mp3",
+      "type": "MUSIC"
+    }
+  ]
 }
