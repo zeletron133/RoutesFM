@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio Automation // GitHub Synced Deck</title>
+<style>
+  :root {
+    --bg-dark: #0d0f12;
+    --panel-bg: #161920;
+    --panel-border: #262b36;
+    --accent-gold: #ffb703;
+    --accent-red: #ff3344;
+    --accent-cyan: #00d2ff;
+    --accent-green: #00e676;
+    --text-main: #f0f3f6;
+    --text-sub: #8b949e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .radio-container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--panel-border);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+    color: var(--accent-gold);
+  }
+
+  .live-badge {
+    background: var(--accent-red);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  .github-panel {
+    background: #090b0e;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .github-panel h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px 0;
+    color: var(--accent-gold);
+  }
+
+  .gh-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  input.gh-input {
+    background: #161920;
+    color: #fff;
+    border: 1px solid var(--panel-border);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    outline: none;
+    width: 100%;
+  }
+
+  .broadcast-deck {
+    background: #000;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .deck-indicators {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .now-playing-label {
+    font-size: 0.7rem;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .active-channel-tag {
+    font-size: 0.65rem;
+    background: #1f2633;
+    color: var(--accent-gold);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+  }
+
+  .current-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 6px 0 16px 0;
+  }
+
+  .time-readout {
+    display: flex;
+    justify-content: space-between;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+
+  input[type="range"].seek-bar {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    background: #222;
+    cursor: pointer;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  input[type="range"].seek-bar::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
+    cursor: pointer;
+  }
+
+  .control-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .panel-card {
+    background: #090b0e;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .panel-card h4 {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px 0;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
+  }
+
+  .btn-start { background: var(--accent-gold); color: #000; }
+  .btn-start:hover { background: #e0a100; }
+  
+  .btn-stop { background: #2a2e38; color: #fff; }
+  .btn-stop:hover { background: #383e4c; }
+
+  .btn-sm { padding: 4px 8px; font-size: 0.65rem; }
+
+  .btn-loop { background: #151a21; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+  .btn-loop:hover { background: var(--accent-cyan); color: #000; }
+  .btn-loop.active { background: var(--accent-green); color: #000; border-color: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+
+  .slider-box { display: flex; flex-direction: column; gap: 8px; }
+  .slider-row { display: flex; align-items: center; justify-content: space-between; }
+
+  .slider-val {
+    font-family: monospace;
+    color: var(--accent-gold);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  input[type="range"].control-slider {
+    width: 100%;
+    height: 6px;
+    appearance: none;
+    background: #222;
+    border-radius: 3px;
+    outline: none;
+  }
+
+  input[type="range"].control-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    cursor: pointer;
+  }
+
+  .manager-section {
+    background: #090b0e;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .manager-header h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    color: var(--accent-cyan);
+  }
+
+  .playlist-controls-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  select.playlist-select {
+    background: #161920;
+    color: #fff;
+    border: 1px solid var(--panel-border);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    outline: none;
+  }
+
+  .upload-area {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .file-input-wrapper input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+  }
+
+  .table-container {
+    background: #000;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .playlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  .playlist-table th, .playlist-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #181b22;
+  }
+
+  .playlist-table th {
+    background: #090b0e;
+    color: var(--text-sub);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+  }
+
+  .type-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 3px;
+  }
+
+  .tag-music { background: #132a3a; color: var(--accent-cyan); }
+  .tag-ad { background: #3d1419; color: var(--accent-red); }
+  .row-active { background: rgba(0, 210, 255, 0.08); }
+
+  .action-btn-group { display: flex; gap: 4px; }
+  
+  .sync-status {
+    font-size: 0.75rem;
+    color: var(--accent-green);
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="radio-container">
+  
+  <div class="header">
+    <h1>Radio Broadcast Station</h1>
+    <span class="live-badge" id="live-indicator" style="display:none;">ON AIR</span>
+  </div>
+
+  <!-- GITHUB CLOUD SYNC CONFIGURATION -->
+  <div class="github-panel">
+    <h3>☁️ GitHub Cloud Sync Configuration</h3>
+    <div class="gh-grid">
+      <input type="text" id="gh-owner" class="gh-input" placeholder="GitHub Username (e.g., octocat)">
+      <input type="text" id="gh-repo" class="gh-input" placeholder="Repository Name (e.g., radio-station)">
+      <input type="password" id="gh-token" class="gh-input" placeholder="GitHub Personal Access Token (ghp_...)">
+      <button class="btn btn-start btn-sm" id="btn-save-gh">Connect & Sync</button>
+    </div>
+    <span class="sync-status" id="gh-sync-status">Status: Disconnected</span>
+  </div>
+
+  <div class="broadcast-deck">
+    <div class="deck-indicators">
+      <span class="now-playing-label" id="status-label">OFF AIR</span>
+      <span class="active-channel-tag" id="active-deck-tag">DECK A</span>
+    </div>
+    <div class="current-title" id="current-title">Connect GitHub to load playlists automatically</div>
+    
+    <div class="time-readout">
+      <span id="time-curr">00:00</span>
+      <span id="time-total">00:00</span>
+    </div>
+    <input type="range" class="seek-bar" id="seek-bar" min="0" max="100" value="0">
+  </div>
+
+  <div class="control-grid">
+    <div class="panel-card">
+      <h4>Broadcast & Beat Loops</h4>
+      <div class="btn-group">
+        <button class="btn btn-start" id="btn-start">Start Broadcast</button>
+        <button class="btn btn-stop" id="btn-stop">Stop</button>
+        <button class="btn btn-loop" id="btn-loop-2x">2x Loop</button>
+        <button class="btn btn-loop" id="btn-loop-3x">3x Loop</button>
+        <button class="btn btn-loop" id="btn-loop-4x">4x Loop</button>
+        <button class="btn btn-stop" id="btn-loop-off" style="font-size:0.65rem;">Exit Loop</button>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h4>Crossfade Overlap</h4>
+      <div class="slider-box">
+        <div class="slider-row">
+          <span style="font-size:0.75rem; color:var(--text-sub);">Blend Time:</span>
+          <span class="slider-val" id="crossfade-val">5s</span>
+        </div>
+        <input type="range" class="control-slider" id="crossfade-slider" min="1" max="10" value="5">
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h4>Master Volume</h4>
+      <div class="slider-box">
+        <div class="slider-row">
+          <span style="font-size:0.75rem; color:var(--text-sub);">Gain Level:</span>
+          <span class="slider-val" id="volume-val">80%</span>
+        </div>
+        <input type="range" class="control-slider" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+      </div>
+    </div>
+  </div>
+
+  <div class="manager-section">
+    <div class="manager-header">
+      <h3>Playlist Manager</h3>
+      <span style="font-size:0.75rem; color:var(--text-sub);">Active Tracks: <strong id="queue-count" style="color:var(--accent-gold);">0</strong></span>
+    </div>
+
+    <div class="playlist-controls-bar">
+      <label style="font-size:0.75rem; color:var(--text-sub);">Select Playlist:</label>
+      <select class="playlist-select" id="playlist-selector"></select>
+      
+      <input type="text" id="new-playlist-name" class="gh-input" style="width:180px;" placeholder="New Playlist Name...">
+      <button class="btn btn-start btn-sm" id="btn-create-playlist">+ Create</button>
+      <button class="btn btn-stop btn-sm" id="btn-delete-playlist" style="background:#3d1419; color:var(--accent-red);">Delete Selected</button>
+    </div>
+
+    <div class="upload-area">
+      <div class="file-input-wrapper">
+        <button class="btn" style="background:#1d212a; color:#fff;">+ Add Music Tracks</button>
+        <input type="file" id="music-input" multiple accept="audio/*">
+      </div>
+      <div class="file-input-wrapper">
+        <button class="btn" style="background:var(--accent-red); color:#fff;">+ Add Radio Ads</button>
+        <input type="file" id="ad-input" multiple accept="audio/*">
+      </div>
+      <button class="btn btn-stop btn-sm" id="btn-clear-queue">Clear Tracks</button>
+    </div>
+
+    <div class="table-container">
+      <table class="playlist-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="playlist-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // State
+  let ghConfig = JSON.parse(localStorage.getItem('radio_gh_config')) || { owner: '', repo: '', token: '' };
+  let playlists = { "Default Rotation": [] };
+  let activePlaylistName = "Default Rotation";
+  let currentFileSHA = null; // Used for GitHub Commit Updates
+
+  let audioCtx = null;
+  let masterGain = null;
+  let isBroadcasting = false;
+  let currentIndex = 0;
+  let crossfadeSec = 5;
+  let startTime = 0;
+  let isSeeking = false;
+  let isLooping = false;
+  let autoAdvanceTimer = null;
+
+  let activeDeck = 'A';
+  const deckA = { source: null, gain: null, buffer: null };
+  const deckB = { source: null, gain: null, buffer: null };
+
+  // Elements
+  const ghOwner = document.getElementById('gh-owner');
+  const ghRepo = document.getElementById('gh-repo');
+  const ghToken = document.getElementById('gh-token');
+  const btnSaveGh = document.getElementById('btn-save-gh');
+  const ghSyncStatus = document.getElementById('gh-sync-status');
+
+  const btnStart = document.getElementById('btn-start');
+  const btnStop = document.getElementById('btn-stop');
+  const musicInput = document.getElementById('music-input');
+  const adInput = document.getElementById('ad-input');
+  const playlistTbody = document.getElementById('playlist-tbody');
+  const liveIndicator = document.getElementById('live-indicator');
+  
+  const playlistSelector = document.getElementById('playlist-selector');
+  const newPlaylistName = document.getElementById('new-playlist-name');
+  const btnCreatePlaylist = document.getElementById('btn-create-playlist');
+  const btnDeletePlaylist = document.getElementById('btn-delete-playlist');
+  const btnClearQueue = document.getElementById('btn-clear-queue');
+  
+  const titleEl = document.getElementById('current-title');
+  const statusLabel = document.getElementById('status-label');
+  const activeDeckTag = document.getElementById('active-deck-tag');
+  const timeCurr = document.getElementById('time-curr');
+  const timeTotal = document.getElementById('time-total');
+  const seekBar = document.getElementById('seek-bar');
+  
+  const crossfadeSlider = document.getElementById('crossfade-slider');
+  const crossfadeVal = document.getElementById('crossfade-val');
+  const volumeSlider = document.getElementById('volume-slider');
+  const volumeVal = document.getElementById('volume-val');
+
+  const btnLoop2x = document.getElementById('btn-loop-2x');
+  const btnLoop3x = document.getElementById('btn-loop-3x');
+  const btnLoop4x = document.getElementById('btn-loop-4x');
+  const btnLoopOff = document.getElementById('btn-loop-off');
+
+  // Load Saved Credentials
+  ghOwner.value = ghConfig.owner;
+  ghRepo.value = ghConfig.repo;
+  ghToken.value = ghConfig.token;
+
+  btnSaveGh.addEventListener('click', () => {
+    ghConfig = {
+      owner: ghOwner.value.trim(),
+      repo: ghRepo.value.trim(),
+      token: ghToken.value.trim()
+    };
+    localStorage.setItem('radio_gh_config', JSON.stringify(ghConfig));
+    fetchFromGitHub();
+  });
+
+  // GITHUB API FUNCTIONS
+  async function fetchFromGitHub() {
+    if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) {
+      ghSyncStatus.textContent = "Status: Credentials Missing";
+      ghSyncStatus.style.color = "var(--accent-red)";
+      return;
+    }
+
+    ghSyncStatus.textContent = "Status: Syncing with GitHub...";
+    ghSyncStatus.style.color = "var(--accent-gold)";
+
+    const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/playlists.json`;
+    
+    try {
+      const res = await fetch(url, {
+        headers: { 'Authorization': `token ${ghConfig.token}` }
+      });
+
+      if (res.status === 404) {
+        // File does not exist yet; commit new file
+        await saveToGitHub();
+        return;
+      }
+
+      const data = await res.json();
+      currentFileSHA = data.sha;
+      const content = decodeURIComponent(escape(atob(data.content)));
+      playlists = JSON.parse(content);
+      
+      ghSyncStatus.textContent = "Status: Connected & Synced ✓";
+      ghSyncStatus.style.color = "var(--accent-green)";
+      
+      renderPlaylistDropdown();
+      renderPlaylistTable();
+    } catch (err) {
+      ghSyncStatus.textContent = "Status: Sync Failed (" + err.message + ")";
+      ghSyncStatus.style.color = "var(--accent-red)";
+    }
+  }
+
+  async function saveToGitHub() {
+    if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) return;
+
+    ghSyncStatus.textContent = "Status: Saving commit to GitHub...";
+    ghSyncStatus.style.color = "var(--accent-gold)";
+
+    const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/playlists.json`;
+    
+    // Strip binary file objects before committing
+    const cleanPlaylists = {};
+    Object.keys(playlists).forEach(plName => {
+      cleanPlaylists[plName] = playlists[plName].map(item => ({
+        name: item.name || item.file?.name,
+        type: item.type
+      }));
+    });
+
+    const jsonString = JSON.stringify(cleanPlaylists, null, 2);
+    const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+    const body = {
+      message: "Update radio playlists structure",
+      content: encodedContent
+    };
+    if (currentFileSHA) body.sha = currentFileSHA;
+
+    try {
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${ghConfig.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      currentFileSHA = data.content.sha;
+      
+      ghSyncStatus.textContent = "Status: Saved to GitHub ✓";
+      ghSyncStatus.style.color = "var(--accent-green)";
+    } catch (err) {
+      ghSyncStatus.textContent = "Status: Save Failed";
+      ghSyncStatus.style.color = "var(--accent-red)";
+    }
+  }
+
+  function renderPlaylistDropdown() {
+    playlistSelector.innerHTML = '';
+    Object.keys(playlists).forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      if (name === activePlaylistName) opt.selected = true;
+      playlistSelector.appendChild(opt);
+    });
+  }
+
+  playlistSelector.addEventListener('change', (e) => {
+    activePlaylistName = e.target.value;
+    renderPlaylistTable();
+  });
+
+  btnCreatePlaylist.addEventListener('click', async () => {
+    const name = newPlaylistName.value.trim();
+    if (!name) return;
+    if (playlists[name]) return alert("Playlist exists!");
+    
+    playlists[name] = [];
+    activePlaylistName = name;
+    newPlaylistName.value = '';
+    renderPlaylistDropdown();
+    renderPlaylistTable();
+    await saveToGitHub();
+  });
+
+  btnDeletePlaylist.addEventListener('click', async () => {
+    if (Object.keys(playlists).length <= 1) return alert("Keep at least 1 playlist!");
+    delete playlists[activePlaylistName];
+    activePlaylistName = Object.keys(playlists)[0];
+    renderPlaylistDropdown();
+    renderPlaylistTable();
+    await saveToGitHub();
+  });
+
+  btnClearQueue.addEventListener('click', async () => {
+    playlists[activePlaylistName] = [];
+    renderPlaylistTable();
+    await saveToGitHub();
+  });
+
+  musicInput.addEventListener('change', async (e) => {
+    Array.from(e.target.files).forEach(f => {
+      playlists[activePlaylistName].push({ file: f, name: f.name, type: 'MUSIC' });
+    });
+    renderPlaylistTable();
+    await saveToGitHub();
+  });
+
+  adInput.addEventListener('change', async (e) => {
+    Array.from(e.target.files).forEach(f => {
+      playlists[activePlaylistName].push({ file: f, name: f.name, type: 'AD' });
+    });
+    renderPlaylistTable();
+    await saveToGitHub();
+  });
+
+  function renderPlaylistTable() {
+    playlistTbody.innerHTML = '';
+    const currentQueue = playlists[activePlaylistName] || [];
+    document.getElementById('queue-count').textContent = currentQueue.length;
+
+    currentQueue.forEach((item, idx) => {
+      const tr = document.createElement('tr');
+      if (isBroadcasting && idx === currentIndex) tr.className = 'row-active';
+      
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td><span class="type-tag ${item.type === 'MUSIC' ? 'tag-music' : 'tag-ad'}">${item.type}</span></td>
+        <td>${item.name || item.file?.name}</td>
+        <td>${isBroadcasting && idx === currentIndex ? 'LIVE' : (item.file ? 'Loaded' : 'Needs Audio File')}</td>
+        <td>
+          <div class="action-btn-group">
+            <button class="btn btn-stop btn-sm" onclick="moveTrack(${idx}, -1)">▲</button>
+            <button class="btn btn-stop btn-sm" onclick="moveTrack(${idx}, 1)">▼</button>
+            <button class="btn btn-stop btn-sm" style="color:var(--accent-red);" onclick="removeTrack(${idx})">✕</button>
+          </div>
+        </td>
+      `;
+      playlistTbody.appendChild(tr);
+    });
+  }
+
+  window.moveTrack = async function(index, direction) {
+    const queue = playlists[activePlaylistName];
+    const newIdx = index + direction;
+    if (newIdx < 0 || newIdx >= queue.length) return;
+    
+    const temp = queue[index];
+    queue[index] = queue[newIdx];
+    queue[newIdx] = temp;
+    
+    renderPlaylistTable();
+    await saveToGitHub();
+  };
+
+  window.removeTrack = async function(index) {
+    playlists[activePlaylistName].splice(index, 1);
+    renderPlaylistTable();
+    await saveToGitHub();
+  };
+
+  crossfadeSlider.addEventListener('input', (e) => {
+    crossfadeSec = parseInt(e.target.value);
+    crossfadeVal.textContent = `${crossfadeSec}s`;
+  });
+
+  volumeSlider.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    volumeVal.textContent = `${Math.round(val * 100)}%`;
+    if (masterGain) masterGain.gain.value = val;
+  });
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = parseFloat(volumeSlider.value);
+      masterGain.connect(audioCtx.destination);
+
+      deckA.gain = audioCtx.createGain();
+      deckB.gain = audioCtx.createGain();
+      
+      deckA.gain.connect(masterGain);
+      deckB.gain.connect(masterGain);
+    }
+  }
+
+  btnStart.addEventListener('click', async () => {
+    const queue = playlists[activePlaylistName] || [];
+    if (queue.length === 0) return alert("Upload music tracks or ads to the active playlist first!");
+    initAudio();
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+    isBroadcasting = true;
+    liveIndicator.style.display = 'inline-block';
+    currentIndex = 0;
+    activeDeck = 'A';
+    playTrack(currentIndex, 0);
+  });
+
+  btnStop.addEventListener('click', () => stopBroadcast());
+
+  function stopBroadcast() {
+    isBroadcasting = false;
+    liveIndicator.style.display = 'none';
+    statusLabel.textContent = "OFF AIR";
+    titleEl.textContent = "Broadcast stopped";
+    clearTimeout(autoAdvanceTimer);
+    
+    stopDeck(deckA);
+    stopDeck(deckB);
+    
+    clearLoopUI();
+    renderPlaylistTable();
+  }
+
+  function stopDeck(deck) {
+    if (deck.source) {
+      try {
+        deck.source.loop = false;
+        deck.source.stop();
+        deck.source.disconnect();
+      } catch(e){}
+      deck.source = null;
+    }
+  }
+
+  async function playTrack(index, offset = 0) {
+    const queue = playlists[activePlaylistName] || [];
+    if (!isBroadcasting || queue.length === 0) return;
+
+    clearTimeout(autoAdvanceTimer);
+    isLooping = false;
+    clearLoopUI();
+
+    const actualIndex = index % queue.length;
+    currentIndex = actualIndex;
+    renderPlaylistTable();
+
+    const item = queue[actualIndex];
+    if (!item.file) {
+      alert(`Please select the local audio file for: ${item.name}`);
+      return;
+    }
+
+    statusLabel.textContent = `NOW PLAYING (${item.type})`;
+    titleEl.textContent = item.name || item.file.name;
+    activeDeckTag.textContent = `DECK ${activeDeck}`;
+
+    const arrayBuf = await item.file.arrayBuffer();
+    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+
+    const now = audioCtx.currentTime;
+    const duration = audioBuf.duration;
+    
+    const currentDeckObj = activeDeck === 'A' ? deckA : deckB;
+    const outgoingDeckObj = activeDeck === 'A' ? deckB : deckA;
+
+    stopDeck(currentDeckObj);
+    currentDeckObj.buffer = audioBuf;
+    currentDeckObj.source = audioCtx.createBufferSource();
+    currentDeckObj.source.buffer = audioBuf;
+    currentDeckObj.source.connect(currentDeckObj.gain);
+
+    const blend = Math.min(crossfadeSec, Math.max(0.5, duration / 2));
+    const fadeOutStart = Math.max(0, duration - blend);
+    const fadeOutDelay = Math.max(0, fadeOutStart - offset);
+
+    currentDeckObj.gain.gain.cancelScheduledValues(now);
+    currentDeckObj.gain.gain.setValueAtTime(0, now);
+    currentDeckObj.gain.gain.linearRampToValueAtTime(1, now + 1);
+
+    if (outgoingDeckObj.source) {
+      outgoingDeckObj.gain.gain.cancelScheduledValues(now);
+      outgoingDeckObj.gain.gain.setValueAtTime(outgoingDeckObj.gain.gain.value, now);
+      outgoingDeckObj.gain.gain.linearRampToValueAtTime(0, now + blend);
+      setTimeout(() => stopDeck(outgoingDeckObj), blend * 1000 + 100);
+    }
+
+    currentDeckObj.source.start(now, offset);
+    startTime = audioCtx.currentTime - offset;
+
+    seekBar.max = duration;
+    seekBar.value = offset;
+
+    const msUntilNext = fadeOutDelay * 1000;
+    autoAdvanceTimer = setTimeout(() => {
+      if (isBroadcasting && !isLooping) {
+        activeDeck = activeDeck === 'A' ? 'B' : 'A';
+        playTrack(currentIndex + 1, 0);
+      }
+    }, msUntilNext);
+
+    updateProgressUI();
+  }
+
+  seekBar.addEventListener('input', () => { isSeeking = true; });
+  seekBar.addEventListener('change', () => {
+    if (!isBroadcasting) return;
+    const seekVal = parseFloat(seekBar.value);
+    playTrack(currentIndex, seekVal);
+    isSeeking = false;
+  });
+
+  function setLoop(multiplier) {
+    const currentDeckObj = activeDeck === 'A' ? deckA : deckB;
+    if (!isBroadcasting || !currentDeckObj.buffer) return;
+    
+    isLooping = true;
+    clearTimeout(autoAdvanceTimer);
+    clearLoopUI();
+
+    let btn = multiplier === 2 ? btnLoop2x : multiplier === 3 ? btnLoop3x : btnLoop4x;
+    btn.classList.add('active');
+
+    const loopLen = multiplier * 0.5;
+    const currentPos = audioCtx.currentTime - startTime;
+
+    if (currentDeckObj.source) {
+      currentDeckObj.source.loop = true;
+      currentDeckObj.source.loopStart = currentPos;
+      currentDeckObj.source.loopEnd = currentPos + loopLen;
+    }
+  }
+
+  function clearLoopUI() {
+    btnLoop2x.classList.remove('active');
+    btnLoop3x.classList.remove('active');
+    btnLoop4x.classList.remove('active');
+  }
+
+  btnLoop2x.addEventListener('click', () => setLoop(2));
+  btnLoop3x.addEventListener('click', () => setLoop(3));
+  btnLoop4x.addEventListener('click', () => setLoop(4));
+
+  btnLoopOff.addEventListener('click', () => {
+    isLooping = false;
+    clearLoopUI();
+    const currentDeckObj = activeDeck === 'A' ? deckA : deckB;
+    if (currentDeckObj.source) currentDeckObj.source.loop = false;
+    const currentPos = audioCtx.currentTime - startTime;
+    playTrack(currentIndex, currentPos);
+  });
+
+  function updateProgressUI() {
+    if (!isBroadcasting) return;
+    const currentDeckObj = activeDeck === 'A' ? deckA : deckB;
+    const elapsed = audioCtx.currentTime - startTime;
+    
+    if (currentDeckObj.buffer && elapsed <= currentDeckObj.buffer.duration) {
+      timeCurr.textContent = formatTime(elapsed);
+      timeTotal.textContent = formatTime(currentDeckObj.buffer.duration);
+      if (!isSeeking) seekBar.value = elapsed;
+      requestAnimationFrame(updateProgressUI);
+    }
+  }
+
+  function formatTime(sec) {
+    if (isNaN(sec) || sec < 0) return "00:00";
+    let m = Math.floor(sec / 60);
+    let s = Math.floor(sec % 60);
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  // Auto fetch on boot
+  if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
+    fetchFromGitHub();
+  }
+</script>
+
+</body>
+</html>
