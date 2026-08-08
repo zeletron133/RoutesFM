@@ -40,5 +40,93 @@
       ]
     }
   ],
-  "musicTracks": []
+  "libraryTracks": [
+    {
+      "id": "802eeedc-7319-4652-9de1-fe741599434c",
+      "title": "DUKOTA || The 7 Notes Band || (Official Music Video)",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/DUKOTA%20__%20The%207%20Notes%20Band%20__%20%20(Official%20Music%20Video).mp3",
+      "type": "music"
+    },
+    {
+      "id": "40671160-2916-42ca-b381-e3c2bceb352d",
+      "title": "ElevenLabs_2026-08-05T10_38_56_Rachel - Fun, Casual, Australian Woman, English speaker_pvc_sp105_s50_sb75_v3 (1)",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/ElevenLabs_2026-08-05T10_38_56_Rachel%20-%20Fun%2C%20Casual%2C%20Australian%20Woman%2C%20English%20speaker_pvc_sp105_s50_sb75_v3%20(1).mp3",
+      "type": "music"
+    },
+    {
+      "id": "85a465b2-8a17-4c7a-883c-47fd45e7aa82",
+      "title": "Forsa Goa (Afrobeats x Tablas)",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Forsa%20Goa%20(Afrobeats%20x%20Tablas).mp3",
+      "type": "music"
+    },
+    {
+      "id": "ad22314a-2af5-41db-8851-60d932f1874f",
+      "title": "Illuminati (Music Video)  Sushin Shyam  Dabzee  Vinayak Sasikumar  Think Originals",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Illuminati%20(Music%20Video)%20%20Sushin%20Shyam%20%20Dabzee%20%20Vinayak%20Sasikumar%20%20Think%20Originals.mp3",
+      "type": "music"
+    },
+    {
+      "id": "c9fbe23e-b8bf-4b73-9cdc-1f231ce34118",
+      "title": "Lawrie  Amit Kumar  Hemlata  Evergreen Konkani Song   Konkani Love Song  Hit Konkani Song",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Lawrie%20%20Amit%20Kumar%20%20Hemlata%20%20Evergreen%20Konkani%20Song%20%20%20Konkani%20Love%20Song%20%20Hit%20Konkani%20Song.mp3",
+      "type": "music"
+    },
+    {
+      "id": "7c4973f3-8673-4808-b426-230a70267abf",
+      "title": "Mogacho Uzo - Lorna  Lyrics",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Mogacho%20Uzo%20-%20Lorna%20%20Lyrics.mp3",
+      "type": "music"
+    },
+    {
+      "id": "2a26fdcf-823e-4139-8b60-974ffdae09b2",
+      "title": "Oh Grezello",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Oh%20Grezello.mp3",
+      "type": "music"
+    },
+    {
+      "id": "f084e6aa-8780-4908-93fd-a7ec5db6cffc",
+      "title": "PUBLIC - Make You Mine (Acoustic  Audio)[rebalanced]",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/PUBLIC%20-%20Make%20You%20Mine%20(Acoustic%20%20Audio)%5Brebalanced%5D.mp3",
+      "type": "music"
+    },
+    {
+      "id": "926cd22c-59bc-41a7-afee-b06f21fa1fda",
+      "title": "Running (Dancehall Remix) V2",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Running%20(Dancehall%20Remix)%20V2.mp3",
+      "type": "music"
+    },
+    {
+      "id": "242ca2f0-5c1b-48ea-a776-3e5d7a912c37",
+      "title": "Scorpions  Still Loving You  HQ_320kbps",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Scorpions%20%20Still%20Loving%20You%20%20HQ_320kbps.mp3",
+      "type": "music"
+    },
+    {
+      "id": "e003b92f-f833-4a04-bcd9-4d6588d534f5",
+      "title": "Y2meta.app - Dangerous (Funkyloop Version) (Funkyloop Version) (320 kbps)",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/Y2meta.app%20-%20Dangerous%20(Funkyloop%20Version)%20(Funkyloop%20Version)%20(320%20kbps).mp3",
+      "type": "music"
+    },
+    {
+      "id": "ac2c2a53-c08b-4328-88bd-7e1e710f1112",
+      "title": "y2mate.com - Kansas  Dust in the Wind HQ_320kbps",
+      "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/y2mate.com%20-%20Kansas%20%20Dust%20in%20the%20Wind%20HQ_320kbps.mp3",
+      "type": "music"
+    }
+  ],
+  "playlists": [
+    {
+      "id": "a86437c1-823b-4660-bc54-b6dd7f41e839",
+      "name": "New",
+      "tracks": [
+        {
+          "id": "f084e6aa-8780-4908-93fd-a7ec5db6cffc",
+          "title": "PUBLIC - Make You Mine (Acoustic  Audio)[rebalanced]",
+          "src": "https://archive.org/download/forsa-goa-afrobeats-x-tablas/PUBLIC%20-%20Make%20You%20Mine%20(Acoustic%20%20Audio)%5Brebalanced%5D.mp3",
+          "type": "music"
+        }
+      ]
+    }
+  ],
+  "activePlaylistId": "a86437c1-823b-4660-bc54-b6dd7f41e839"
 }
